@@ -1,42 +1,90 @@
-# Albumy
+# Albumy with ML Features
 
-*Capture and share every wonderful moment.*
+_Capture and share every wonderful moment with AI-powered accessibility and search._
 
-> Example application for *[Python Web Development with Flask](https://helloflask.com/en/book/1)* (《[Flask Web 开发实战](https://helloflask.com/book/1)》).
+This enhanced version of Albumy includes:
 
-Demo: http://albumy.helloflask.com
-
-![Screenshot](https://helloflask.com/screenshots/albumy.png)
+-   **Auto-generated alt text** for uploaded images using Azure Computer Vision API
+-   **AI-powered image search** using automatically detected tags
 
 ## Installation
 
-clone:
-```
-$ git clone https://github.com/greyli/albumy.git
-$ cd albumy
-```
-create & activate virtual env then install dependency:
+### Prerequisites
 
-with venv/virtualenv + pip:
+-   Python 3.7+ (I used Python 3.9.0)
+-   Azure Computer Vision API account
+
+### Setup Instructions
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/Archit1706/cs516-hw1.git
+cd cs516-hw1
 ```
-$ python -m venv env  # use `virtualenv env` for Python2, use `python3 ...` for Python3 on Linux & macOS
-$ source env/bin/activate  # use `env\Scripts\activate` on Windows
-$ pip install -r requirements.txt
+
+2. Create and activate virtual environment:
+
+```bash
+python -m venv env
+source env/bin/activate  # On Windows: env\Scripts\activate
 ```
-or with Pipenv:
+
+3. Install dependencies:
+
+```bash
+pip install -r requirements.txt
 ```
-$ pipenv install --dev
-$ pipenv shell
+
+4. Set up Azure Computer Vision API:
+
+    - Sign up for [Azure Cognitive Services](https://azure.microsoft.com/services/cognitive-services/)
+    - Create a Computer Vision resource
+    - Get your API key and endpoint
+    - Create `albumy/api_config.py` with:
+
+    ```python
+    VISION_API_KEY = "your_api_key_here"
+    VISION_API_ENDPOINT = "your_endpoint_here"
+    ```
+
+5. Initialize the database:
+
+```bash
+flask initdb --drop
+flask forge  # Optional: add sample data
 ```
-generate fake data then run:
+
+6. Run the application:
+
+```bash
+flask run
 ```
-$ flask forge
-$ flask run
-* Running on http://127.0.0.1:5000/
-```
-Test account:
-* email: `admin@helloflask.com`
-* password: `helloflask`
+
+7. Access the application at http://127.0.0.1:5000
+
+### Test Account
+
+-   Email: admin@helloflask.com
+-   Password: helloflask
+
+## New ML Features
+
+### Alternative Text Generation
+
+-   Upload any image and it will automatically generate descriptive alt text
+-   View the alt text by inspecting the HTML source of image elements
+-   Improves accessibility for screen readers
+
+### AI-Powered Image Search
+
+-   Images are automatically tagged with detected objects
+-   Search for images using keywords like "person", "car", "building", etc.
+-   Uses the existing search functionality with AI-generated tags
+
+## API Requirements
+
+This application requires an active Azure Computer Vision API subscription. The free tier provides 5,000 API calls per month, which is sufficient for testing and development.
 
 ## License
 
