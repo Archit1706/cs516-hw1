@@ -122,16 +122,40 @@ def upload():
     if request.method == 'POST' and 'file' in request.files:
         f = request.files.get('file')
         filename = rename_image(f.filename)
-        f.save(os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], filename))
+        full_path = os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], filename)
+        f.save(full_path)
+        # f.save(os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], filename))
         filename_s = resize_image(f, filename, current_app.config['ALBUMY_PHOTO_SIZE']['small'])
         filename_m = resize_image(f, filename, current_app.config['ALBUMY_PHOTO_SIZE']['medium'])
+
+        from albumy.ml_service import analyze_image
+        from albumy.models import Tag
+        
+        ml_result = analyze_image(full_path)
+        alt_text = ""
+        if ml_result['success'] and ml_result['alt_text']:
+            alt_text = ml_result['alt_text']
+
         photo = Photo(
             filename=filename,
             filename_s=filename_s,
             filename_m=filename_m,
-            author=current_user._get_current_object()
+            author=current_user._get_current_object(),
+            alt_text=alt_text
         )
         db.session.add(photo)
+        db.session.flush()
+
+        if ml_result['success'] and ml_result['tags']:
+            for tag_name in ml_result['tags'][:5]:  # Limit to 5 tags
+                tag = Tag.query.filter_by(name=tag_name).first()
+                if tag is None:
+                    tag = Tag(name=tag_name)
+                    db.session.add(tag)
+                    db.session.flush()
+                if tag not in photo.tags:
+                    photo.tags.append(tag)
+        
         db.session.commit()
     return render_template('main/upload.html')
 
